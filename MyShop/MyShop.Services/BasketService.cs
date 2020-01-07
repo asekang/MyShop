@@ -107,7 +107,7 @@ namespace MyShop.Services
 
         public List<BasketItemViewModel> GetBasketItems(HttpContextBase httpContext)
         {
-            Basket basket = GetBasket(httpContext.false);
+            Basket basket = GetBasket(httpContext, false);
 
             if(basket != null)
             {
