@@ -72,9 +72,9 @@ namespace MyShop.Services
         public void AddToBasket(HttpContextBase httpContext, string productId)
         {
             Basket basket = GetBasket(httpContext, true);
-            BasketItem item = basket.BaketItems.FirstOrDefault(i => i.Id == productId);
+            BasketItem item = basket.BasketItems.FirstOrDefault(i => i.ProductId == productId);
 
-            if(item == null)
+            if (item == null)
             {
                 item = new BasketItem()
                 {
@@ -83,7 +83,7 @@ namespace MyShop.Services
                     Quantity = 1
                 };
 
-                basket.BaketItems.Add(item);
+                basket.BasketItems.Add(item);
             }
             else
             {
@@ -96,11 +96,11 @@ namespace MyShop.Services
         public void RemoveFromBasket(HttpContextBase httpContext, string itemId)
         {
             Basket basket = GetBasket(httpContext, true);
-            BasketItem item = basket.BaketItems.FirstOrDefault(i => i.Id == itemId);
+            BasketItem item = basket.BasketItems.FirstOrDefault(i => i.Id == itemId);
 
             if (item != null)
             {
-                basket.BaketItems.Remove(item);
+                basket.BasketItems.Remove(item);
                 basketContext.Commit();
             }
         }
@@ -109,20 +109,21 @@ namespace MyShop.Services
         {
             Basket basket = GetBasket(httpContext, false);
 
-            if(basket != null)
+            if (basket != null)
             {
-                var results = (from b in basket.BaketItems
-                              join p in productContext.Collection() on b.ProductId equals p.Id
-                              select new BasketItemViewModel()
-                              {
-                                  Id = b.Id,
-                                  Quantity = b.Quantity,
-                                  ProductName = p.Name,
-                                  Image = p.Image,
-                                  Price = p.Price
-                              }).ToList();
+                var results = (from b in basket.BasketItems
+                               join p in productContext.Collection() on b.ProductId equals p.Id
+                               select new BasketItemViewModel()
+                               {
+                                   Id = b.Id,
+                                   Quantity = b.Quantity,
+                                   ProductName = p.Name,
+                                   Image = p.Image,
+                                   Price = p.Price
+                               }
+                              ).ToList();
 
-                return results
+                return results;
             }
             else
             {
@@ -134,13 +135,12 @@ namespace MyShop.Services
         {
             Basket basket = GetBasket(httpContext, false);
             BasketSummaryViewModel model = new BasketSummaryViewModel(0, 0);
-
-            if(basket != null)
+            if (basket != null)
             {
-                int? basketCount = (from item in basket.BaketItems
+                int? basketCount = (from item in basket.BasketItems
                                     select item.Quantity).Sum();
 
-                decimal? basketTotal = (from item in basket.BaketItems
+                decimal? basketTotal = (from item in basket.BasketItems
                                         join p in productContext.Collection() on item.ProductId equals p.Id
                                         select item.Quantity * p.Price).Sum();
 
